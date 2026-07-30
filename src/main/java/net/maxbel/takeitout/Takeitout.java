@@ -1348,15 +1348,63 @@ public class Takeitout implements ModInitializer {
         player.containerMenu.broadcastChanges();
     }
 
-    private static void logLedgerRemove(ServerPlayer player, WorldContainerSource source, ItemStack stack) {
-        if (LEDGER_LOADED) {
-            LedgerCompat.logItemRemove(player, BlockPos.of(source.position()), stack);
+    private static void logLedgerRemove(
+            ServerPlayer player,
+            WorldContainerSource source,
+            ItemStack stack
+    ) {
+        if (!LEDGER_LOADED
+                || source == null
+                || stack == null
+                || stack.isEmpty()) {
+            return;
         }
+
+        ServerLevel world = getSourceWorld(player, source);
+        if (world == null) {
+            LOGGER.warn(
+                    "Cannot log Ledger removal: unresolved source world {}, pos={}",
+                    source.dimension(),
+                    BlockPos.of(source.position())
+            );
+            return;
+        }
+
+        LedgerCompat.logItemRemove(
+                player,
+                world,
+                BlockPos.of(source.position()),
+                stack
+        );
     }
 
-    private static void logLedgerInsert(ServerPlayer player, WorldContainerSource source, ItemStack stack) {
-        if (LEDGER_LOADED) {
-            LedgerCompat.logItemInsert(player, BlockPos.of(source.position()), stack);
+    private static void logLedgerInsert(
+            ServerPlayer player,
+            WorldContainerSource source,
+            ItemStack stack
+    ) {
+        if (!LEDGER_LOADED
+                || source == null
+                || stack == null
+                || stack.isEmpty()) {
+            return;
         }
+
+        ServerLevel world = getSourceWorld(player, source);
+        if (world == null) {
+            LOGGER.warn(
+                    "Cannot log Ledger insertion: unresolved source world {}, pos={}",
+                    source.dimension(),
+                    BlockPos.of(source.position())
+            );
+            return;
+        }
+
+        LedgerCompat.logItemInsert(
+                player,
+                world,
+                BlockPos.of(source.position()),
+                stack
+        );
     }
 }
